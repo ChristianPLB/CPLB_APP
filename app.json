@@ -15,7 +15,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/lyrix.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.christian09232004.Lyri"
     },
     "web": {
       "bundler": "metro",
@@ -40,7 +41,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "7be02414-b0ca-478f-a667-c54611da4e5c"
+        "projectId": "3e1832a1-e237-4097-8036-873729058df3"
       }
     }
   }
