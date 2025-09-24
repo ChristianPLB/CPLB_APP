@@ -38,7 +38,7 @@ export default function Artist() {
       keyExtractor={(artist) => artist}
       renderItem={({ item: artist }) => (
         <View style={styles.artistBox}>
-          <Text style={styles.artistTitle}>🎤 {artist}</Text>
+          <Text style={styles.artistTitle}>{artist}</Text>
           {grouped[artist].map((song) => (
             <View key={song.id} style={styles.songItem}>
               <TouchableOpacity
@@ -46,7 +46,7 @@ export default function Artist() {
                   router.push({ pathname: "/songDetails", params: song })
                 }
               >
-                <Text style={styles.songTitle}>🎵 {song.title}</Text>
+                <Text style={styles.songTitle}>{song.title}</Text>
               </TouchableOpacity>
 
               <View style={styles.actions}>

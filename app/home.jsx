@@ -1,13 +1,32 @@
 // app/home.jsx
 import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
-import { Ionicons } from "@expo/vector-icons"; // 👈 Import icons
+import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Home() {
   const router = useRouter();
+  const [firstname, setFirstname] = useState("");
+
+  useEffect(() => {
+    const loadUser = async () => {
+      const storedUser = await AsyncStorage.getItem("user");
+      if (storedUser) {
+        const { firstname } = JSON.parse(storedUser);
+        setFirstname(firstname || "");
+      }
+    };
+    loadUser();
+  }, []);
 
   return (
     <View style={styles.container}>
+      {/* Top-right Welcome */}
+      <View style={styles.topLeft}>
+        <Text style={styles.welcomeText}> Welcome, {firstname}</Text>
+      </View>
+
       {/* Main Content */}
       <View style={styles.content}>
         <Text style={styles.title}>🎵 LyriX Home</Text>
@@ -17,14 +36,13 @@ export default function Home() {
       {/* Floating + Button */}
       <TouchableOpacity
         style={styles.fab}
-        onPress={() => router.push("/goals/create")} // ✅ Fixed path
+        onPress={() => router.push("/goals/create")}
       >
         <Ionicons name="add" size={32} color="white" />
       </TouchableOpacity>
 
       {/* Bottom Navigation Bar */}
       <View style={styles.navBar}>
-        {/* Search Page */}
         <TouchableOpacity
           style={styles.navButton}
           onPress={() => router.push("/search")}
@@ -32,36 +50,25 @@ export default function Home() {
           <Ionicons name="search" size={28} color="#333" />
         </TouchableOpacity>
 
-        {/* Artist Page */}
         <TouchableOpacity
           style={styles.navButton}
-          onPress={() => router.push("/artist")} // ✅ Should go to Artist List
+          onPress={() => router.push("/artist")}
         >
           <Ionicons name="person" size={28} color="#333" />
         </TouchableOpacity>
 
-        {/* Album Page */}
         <TouchableOpacity
           style={styles.navButton}
-          onPress={() => router.push("/album")} // ✅ Should go to Album List
+          onPress={() => router.push("/album")}
         >
           <Ionicons name="musical-notes" size={28} color="#333" />
         </TouchableOpacity>
 
-        {/* Profile */}
         <TouchableOpacity
           style={styles.navButton}
           onPress={() => router.push("/profile")}
         >
           <Ionicons name="settings" size={28} color="#333" />
-        </TouchableOpacity>
-
-        {/* Logout */}
-        <TouchableOpacity
-          style={styles.navButton}
-          onPress={() => router.push("/logout")}
-        >
-          <Ionicons name="log-out" size={28} color="red" />
         </TouchableOpacity>
       </View>
     </View>
@@ -70,6 +77,17 @@ export default function Home() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
+  topRight: {
+    position: "absolute",
+    top: 40,
+    right: 20,
+  },
+  welcomeText: {
+    marginTop: 20,
+    fontSize: 30,
+    fontWeight: "600",
+    color: "#333",
+  },
   content: {
     flex: 1,
     justifyContent: "center",
@@ -88,11 +106,9 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   navButton: { flex: 1, alignItems: "center" },
-
-  // Floating Action Button (FAB)
   fab: {
     position: "absolute",
-    bottom: 120, // above navbar
+    bottom: 120,
     right: 20,
     backgroundColor: "#2196F3",
     width: 60,

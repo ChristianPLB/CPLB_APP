@@ -37,7 +37,7 @@ export default function CreateSong() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>➕ Create a New Song</Text>
+      <Text style={styles.title}> Create a New Song</Text>
 
       <TextInput
         style={styles.input}
