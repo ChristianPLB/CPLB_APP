@@ -2,6 +2,7 @@ import { useRouter } from "expo-router";
 import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
 import { useState } from "react";
 import { Button, StyleSheet, Text, TextInput, View } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { app } from "../config/FirebaseConfig";
 
 export default function Signup() {
@@ -33,8 +34,23 @@ export default function Signup() {
     }
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      router.replace("/login"); // ✅ Redirect after signup
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+      // ✅ Save user profile info to AsyncStorage
+      const userData = {
+        uid: userCredential.user.uid,
+        firstname,
+        lastname,
+        username,
+        email,
+        profilePic: null, // default, user can upload later
+      };
+
+      await AsyncStorage.setItem("user", JSON.stringify(userData));
+
+      // ✅ Redirect to Profile Page
+      router.replace("/profile");
+
     } catch (error) {
       if (error.code === "auth/email-already-in-use") {
         setErrorMessage("This email is already registered.");
@@ -53,7 +69,6 @@ export default function Signup() {
       <View style={styles.card}>
         <Text style={styles.title}>Create Account</Text>
 
-        {/* First Name */}
         <TextInput
           style={styles.input}
           placeholder="First Name"
@@ -61,8 +76,6 @@ export default function Signup() {
           value={firstname}
           onChangeText={setFirstname}
         />
-
-        {/* Last Name */}
         <TextInput
           style={styles.input}
           placeholder="Last Name"
@@ -70,8 +83,6 @@ export default function Signup() {
           value={lastname}
           onChangeText={setLastname}
         />
-
-        {/* Username */}
         <TextInput
           style={styles.input}
           placeholder="Username"
@@ -80,8 +91,6 @@ export default function Signup() {
           onChangeText={setUsername}
           autoCapitalize="none"
         />
-
-        {/* Email */}
         <TextInput
           style={styles.input}
           placeholder="Email"
@@ -91,8 +100,6 @@ export default function Signup() {
           autoCapitalize="none"
           keyboardType="email-address"
         />
-
-        {/* Password */}
         <TextInput
           style={styles.input}
           placeholder="Password"
@@ -101,8 +108,6 @@ export default function Signup() {
           onChangeText={setPassword}
           secureTextEntry
         />
-
-        {/* Confirm Password */}
         <TextInput
           style={styles.input}
           placeholder="Confirm Password"
@@ -112,7 +117,6 @@ export default function Signup() {
           secureTextEntry
         />
 
-        {/* 🔴 Error Message */}
         {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
 
         <View style={styles.buttonWrapper}>
@@ -120,11 +124,9 @@ export default function Signup() {
         </View>
 
         <Text style={styles.orText}>Already have an account?</Text>
-
         <View style={styles.smallButtonWrapper}>
           <Button title="Login" onPress={() => router.push("/login")} />
         </View>
-
         <View style={styles.smallButtonWrapper}>
           <Button title="Back" color="gray" onPress={() => router.replace("/")} />
         </View>

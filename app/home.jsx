@@ -7,14 +7,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Home() {
   const router = useRouter();
-  const [firstname, setFirstname] = useState("");
+  const [username, setUsername] = useState("");
 
   useEffect(() => {
     const loadUser = async () => {
       const storedUser = await AsyncStorage.getItem("user");
       if (storedUser) {
-        const { firstname } = JSON.parse(storedUser);
-        setFirstname(firstname || "");
+        const { username } = JSON.parse(storedUser);
+        setUsername(username || "");
       }
     };
     loadUser();
@@ -24,7 +24,7 @@ export default function Home() {
     <View style={styles.container}>
       {/* Top-right Welcome */}
       <View style={styles.topLeft}>
-        <Text style={styles.welcomeText}> Welcome, {firstname}</Text>
+        <Text style={styles.welcomeText}> Welcome, {username}</Text>
       </View>
 
       {/* Main Content */}
@@ -54,7 +54,7 @@ export default function Home() {
           style={styles.navButton}
           onPress={() => router.push("/artist")}
         >
-          <Ionicons name="person" size={28} color="#333" />
+          <Ionicons name="person" size={28} color="#333333ff" />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     right: 20,
   },
   welcomeText: {
-    marginTop: 20,
+    marginTop: 30,
     fontSize: 30,
     fontWeight: "600",
     color: "#333",
