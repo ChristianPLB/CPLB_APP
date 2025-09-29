@@ -3,6 +3,7 @@ import { useState } from "react";
 import { View, Text, TextInput, Button, StyleSheet, ScrollView, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { addDoc, collection } from "firebase/firestore"
 
 export default function CreateSong() {
   const router = useRouter();
@@ -33,6 +34,7 @@ export default function CreateSong() {
       console.error("Error saving song:", error);
       Alert.alert("Error", "Failed to save song!");
     }
+    await addDoc(collection(db, 'LryiX'), goalData)
   };
 
   return (

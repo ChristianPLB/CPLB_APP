@@ -6,6 +6,7 @@ import {
     StyleSheet,
     TouchableOpacity,
     Alert,
+    ScrollView,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -18,6 +19,7 @@ export default function EditSong() {
     const [title, setTitle] = useState(params.title || "");
     const [artist, setArtist] = useState(params.artist || "");
     const [album, setAlbum] = useState(params.album || "");
+    const [lyrics, setLyrics] = useState(params.lyrics || "");
 
     const handleUpdate = async () => {
         if (!title || !artist) {
@@ -30,16 +32,16 @@ export default function EditSong() {
 
         // Update song
         const updatedSongs = songs.map((s) =>
-            s.id === params.id ? { ...s, title, artist, album } : s
+            s.id === params.id ? { ...s, title, artist, album, lyrics } : s
         );
 
         await AsyncStorage.setItem("songs", JSON.stringify(updatedSongs));
         Alert.alert("✅ Updated", "Song details have been updated.");
-        router.back(); // Go back to Artist page
+        router.back(); // Go back to previous page
     };
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
             <Text style={styles.header}>✏️ Edit Song</Text>
 
             <TextInput
@@ -60,11 +62,19 @@ export default function EditSong() {
                 value={album}
                 onChangeText={setAlbum}
             />
+            <TextInput
+                style={[styles.input, styles.lyricsInput]}
+                placeholder="Lyrics"
+                value={lyrics}
+                onChangeText={setLyrics}
+                multiline
+                textAlignVertical="top"
+            />
 
             <TouchableOpacity style={styles.saveBtn} onPress={handleUpdate}>
                 <Text style={styles.saveText}>💾 Save Changes</Text>
             </TouchableOpacity>
-        </View>
+        </ScrollView>
     );
 }
 
@@ -79,11 +89,16 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         fontSize: 16,
     },
+    lyricsInput: {
+        height: 150, // bigger space for lyrics
+    },
     saveBtn: {
         backgroundColor: "blue",
         padding: 15,
         borderRadius: 8,
         alignItems: "center",
+        marginTop: 10,
+        marginBottom: 30,
     },
     saveText: { color: "white", fontSize: 16, fontWeight: "bold" },
 });

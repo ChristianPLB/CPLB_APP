@@ -48,7 +48,6 @@ export default function Signup() {
 
       await AsyncStorage.setItem("user", JSON.stringify(userData));
 
-      // ✅ Redirect to Profile Page
       router.replace("/profile");
 
     } catch (error) {

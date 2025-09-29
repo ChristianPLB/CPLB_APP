@@ -1,5 +1,6 @@
 import { useRouter } from "expo-router";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { getFirestore, doc, getDoc } from "firebase/firestore";
 import { useState } from "react";
 import { Button, StyleSheet, Text, TextInput, View } from "react-native";
 import { app } from "../config/FirebaseConfig";
@@ -7,25 +8,38 @@ import { app } from "../config/FirebaseConfig";
 export default function Login() {
   const router = useRouter();
   const auth = getAuth(app);
+  const db = getFirestore(app);
 
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState(""); // username OR email
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
   const handleLogin = async () => {
     setErrorMessage("");
     try {
+      let email = identifier;
+
+      // 🔹 Check if it's NOT an email → assume username
+      if (!identifier.includes("@")) {
+        const userDoc = await getDoc(doc(db, "usernames", identifier));
+        if (!userDoc.exists()) {
+          setErrorMessage("Invalid username or password.");
+          return;
+        }
+        email = userDoc.data().email;
+      }
+
+      // 🔹 Login with email + password
       await signInWithEmailAndPassword(auth, email, password);
       router.replace("/");
     } catch (error) {
-      // 🔹 Simplify messages
       if (
         error.code === "auth/invalid-email" ||
         error.code === "auth/invalid-credential" ||
         error.code === "auth/wrong-password" ||
         error.code === "auth/user-not-found"
       ) {
-        setErrorMessage("Invalid email or password.");
+        setErrorMessage("Invalid username or password.");
       } else if (error.code === "auth/too-many-requests") {
         setErrorMessage("Too many attempts. Try again later.");
       } else {
@@ -41,10 +55,10 @@ export default function Login() {
 
         <TextInput
           style={styles.input}
-          placeholder="Email"
+          placeholder="Username or Email"
           placeholderTextColor="#999"
-          value={email}
-          onChangeText={setEmail}
+          value={identifier}
+          onChangeText={setIdentifier}
           autoCapitalize="none"
         />
 
@@ -57,7 +71,6 @@ export default function Login() {
           secureTextEntry
         />
 
-        {/* 🔴 Error Message */}
         {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
 
         <View style={styles.buttonWrapper}>
@@ -66,12 +79,10 @@ export default function Login() {
 
         <Text style={styles.orText}>Don’t have an account?</Text>
 
-        {/* Sign Up */}
         <View style={styles.smallButtonWrapper}>
           <Button title="Sign Up" onPress={() => router.push("/signup")} />
         </View>
 
-        {/* Back */}
         <View style={styles.smallButtonWrapper}>
           <Button title="Back" color="gray" onPress={() => router.replace("/")} />
         </View>

@@ -1,14 +1,23 @@
 // app/home.jsx
-import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import { useRouter, useFocusEffect } from "expo-router";
+import { useEffect, useState, useCallback } from "react";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  FlatList,
+  Image,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Home() {
   const router = useRouter();
   const [username, setUsername] = useState("");
+  const [songs, setSongs] = useState([]);
 
+  // Load user once
   useEffect(() => {
     const loadUser = async () => {
       const storedUser = await AsyncStorage.getItem("user");
@@ -20,28 +29,74 @@ export default function Home() {
     loadUser();
   }, []);
 
+  // Reload songs whenever Home is focused
+  useFocusEffect(
+    useCallback(() => {
+      const loadSongs = async () => {
+        const storedSongs = await AsyncStorage.getItem("songs");
+        if (storedSongs) {
+          setSongs(JSON.parse(storedSongs));
+        } else {
+          setSongs([]); // Empty list if none saved yet
+        }
+      };
+      loadSongs();
+    }, [])
+  );
+
+  const renderSong = ({ item }) => (
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() =>
+        router.push({
+          pathname: "songDetails",
+          params: {
+            title: item.title,
+            artist: item.artist,
+            album: item.album,
+            lyrics: item.lyrics || "", // if lyrics exist
+          },
+        })
+      }
+    >
+      <View style={styles.songInfo}>
+        <Text style={styles.songTitle}>{item.title}</Text>
+        <Text style={styles.songArtist}>{item.artist}</Text>
+        <Text style={styles.songAlbum}>{item.album}</Text>
+      </View>
+      <Ionicons name="chevron-forward" size={22} color="#888" />
+    </TouchableOpacity>
+  );
+
   return (
     <View style={styles.container}>
-      {/* Top-right Welcome */}
+      {/* Top Welcome */}
       <View style={styles.topLeft}>
-        <Text style={styles.welcomeText}> Welcome, {username}</Text>
+        <Text style={styles.welcomeText}>Hello, {username} 👋</Text>
       </View>
 
-      {/* Main Content */}
-      <View style={styles.content}>
-        <Text style={styles.title}>🎵 LyriX Home</Text>
-        <Text style={styles.subtitle}>Welcome! Choose where you want to go.</Text>
-      </View>
+      {/* Song List */}
+      <FlatList
+        data={songs}
+        keyExtractor={(item) => item.id}
+        renderItem={renderSong}
+        contentContainerStyle={{ padding: 16 }}
+        ListEmptyComponent={
+          <Text style={{ textAlign: "center", color: "#666", marginTop: 20 }}>
+            No songs yet. Tap ➕ to add one!
+          </Text>
+        }
+      />
 
       {/* Floating + Button */}
       <TouchableOpacity
         style={styles.fab}
-        onPress={() => router.push("/goals/create")}
+        onPress={() => router.push("/create")}
       >
         <Ionicons name="add" size={32} color="white" />
       </TouchableOpacity>
 
-      {/* Bottom Navigation Bar */}
+      {/* Bottom Navigation */}
       <View style={styles.navBar}>
         <TouchableOpacity
           style={styles.navButton}
@@ -77,25 +132,27 @@ export default function Home() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
-  topRight: {
-    position: "absolute",
-    top: 40,
-    right: 20,
-  },
-  welcomeText: {
-    marginTop: 30,
-    fontSize: 30,
-    fontWeight: "600",
-    color: "#333",
-  },
-  content: {
-    flex: 1,
-    justifyContent: "center",
+  topLeft: { padding: 16 },
+  welcomeText: { fontSize: 22, fontWeight: "600", color: "#333" },
+  card: {
+    flexDirection: "row",
     alignItems: "center",
-    padding: 20,
+    backgroundColor: "#f9f9f9",
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 12,
+    elevation: 2,
   },
-  title: { fontSize: 26, fontWeight: "bold", marginBottom: 10 },
-  subtitle: { fontSize: 16, color: "#666", textAlign: "center" },
+  cover: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+    marginRight: 12,
+  },
+  songInfo: { flex: 1 },
+  songTitle: { fontSize: 16, fontWeight: "bold", color: "#111" },
+  songArtist: { fontSize: 14, color: "#555" },
+  songAlbum: { fontSize: 12, color: "#777" },
   navBar: {
     flexDirection: "row",
     justifyContent: "space-around",

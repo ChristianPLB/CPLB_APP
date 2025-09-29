@@ -6,6 +6,8 @@ import { getAuth, signOut } from "firebase/auth";
 import { app } from "../config/FirebaseConfig";
 
 export default function ProfilePage() {
+  const [firstname, setFirstname] = useState("");
+  const [lastname, setLastname] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [profilePic, setProfilePic] = useState(null);
@@ -17,7 +19,9 @@ export default function ProfilePage() {
       try {
         const storedUser = await AsyncStorage.getItem("user");
         if (storedUser) {
-          const { username, email, profilePic } = JSON.parse(storedUser);
+          const { username, email, profilePic, firstname, lastname } = JSON.parse(storedUser);
+          setFirstname(firstname || "none");
+          setLastname(lastname || "none");
           setUsername(username || "Unknown");
           setEmail(email || "Not provided");
           setProfilePic(
@@ -56,6 +60,7 @@ export default function ProfilePage() {
 
       {/* User Info */}
       <Text style={styles.title}>👤 Profile</Text>
+      <Text style={styles.info}>Fullname: {firstname} {lastname}</Text>
       <Text style={styles.info}>Username: {username}</Text>
       <Text style={styles.info}>Email: {email}</Text>
 
