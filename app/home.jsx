@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#f9f9f9",
+    backgroundColor: "#f3f3f3ff",
     borderRadius: 12,
     padding: 12,
     marginBottom: 12,
